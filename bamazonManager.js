@@ -36,11 +36,67 @@ function start(){
   })
 };
 
+function inquirerAddInv(){
+  inquirer.prompt([
+    {
+      type: "input",
+      message: "Which item ID would you like add more of?",
+      name:"inquirerAddID",
+      validate: function (num) {
+        if(!isNaN(num)){
+          return true;
+        } else {
+          return "Please Select a valid Number!";
+        }
+      }
+    },
+    {
+      type:"input",
+      message:"How many more do you need?",
+      name:"inquirerAddNum",
+      validate: function(val){
+        if(!isNaN(val)){
+          return true;
+        } else {
+          return "Please insert a another number";
+        }
+      },
+    }
+  ]).then(function(inquirerResponse){
+    var id = inquirerResponse.inquirerAddID;
+    var addNum = parseInt(inquirerResponse.inquirerAddNum);
+    console.log(id,addNum);
+
+    addInvNotFromCheck(id, addNum);
+  })
+}
 
 
+function addInvNotFromCheck(id, addNum){
+connection.query("SELECT * FROM products WHERE id=?",
+[id],
+ function(err, res){
 
-function addInvNotFromCheck(){
-console.log('just to add something')
+var queryItem = res[0].item_name;
+var queryStock = parseInt(addNum + res[0].stock_quantity);
+
+return updateInvNotFromCheck(id, queryItem, queryStock);
+
+})
+}
+
+function updateInvNotFromCheck(id, queryItem, queryStock){
+  console.log(" this is the ID:" + id + " this item: " + queryItem + " this is the new Stock amount: " + queryStock);
+  connection.query("UPDATE products SET stock_quantity=? WHERE id=?",
+  [
+    queryStock,
+    id
+  ],
+     function(err, res){
+    console.log(id + ": " + queryItem + " |Quantity Left: " + queryStock);
+
+    return start();
+  })
 }
 
 
