@@ -78,35 +78,38 @@ function checkItem(numID, numOfItems){
 
     var selectedItem = res[0].item_name;
     var amountLeft = res[0].stock_quantity - numOfItems;
+    var cost = res[0].price * numOfItems;
 
     res.forEach(function(item, index) {
       console.log(item.id + ": " + item.item_name + "- $" + item.price + "|Quanity: " + item.stock_quantity);
     });
-    console.log(res[0].stock_quantity);
+    console.log("This is the quantity of that item: " + res[0].stock_quantity);
     console.log("this is the amount left: " + amountLeft);
     //check at see if the number of items are able to be purchased
 
     if(res[0].stock_quantity< numOfItems){
-      console.log("this item doesn't have that many units availble");
+      console.log("This item doesn't have that many units for purchase...");
       return buyItem();
     }
     if(res[0].stock_quantity === numOfItems){
       console.log("this item can be purchased but you will wipe out all of the stock");
-      return checkout(numID, selectedItem, numOfItems, amountLeft);
+      console.log("This is your Total: " + cost)
+      return checkout(numID, selectedItem, numOfItems, amountLeft, cost);
     }
     if(res[0].stock_quantity > numOfItems){
-      console.log("we have more than enough product for you");
-      return checkout(numID, selectedItem, numOfItems, amountLeft);
+      console.log("we have more than enough product for you");console.log("This is your Total: " + cost)
+
+      return checkout(numID, selectedItem, numOfItems, amountLeft, cost);
     }
 
     });
   }
 
-function checkout(numID, selectedItem, numOfItems, amountLeft){
+function checkout(numID, selectedItem, numOfItems, amountLeft,cost){
     inquirer.prompt([
        {
       type: "list",
-      message: "are you sure you want to purchase?",
+      message: "are you sure you want to purchase for: $" + cost + "?",
       choices:["yes", "no"],
       name: "confirm",
     },
@@ -119,6 +122,7 @@ function checkout(numID, selectedItem, numOfItems, amountLeft){
         ],
            function(err, res){
           console.log(numID + ": " + selectedItem + " |Quantity Left: " + amountLeft);
+
           return browseItems();
         })
 
