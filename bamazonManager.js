@@ -13,6 +13,7 @@ var connection = mysql.createConnection({
   database: "bamazonDB"
 });
 
+
 function start(){
   inquirer.prompt([
     {
@@ -32,9 +33,73 @@ function start(){
     if(inquirerResponse.option === "Add to Inventory"){
       return inquirerAddInv();
       }
+    if(inquirerResponse.option === "Add New Product"){
+      return inquirerAddItem();
+      }
     
   })
 };
+
+function inquirerAddItem(){
+  inquirer.prompt([
+    {
+      type: "input",
+      message: "What is the name of the item you want add?",
+      name: "inventoryItemName",
+    },
+    {
+      type:"list",
+      message:"What is the category that you want to file it under?",
+      choices:["food/drink", "tech", "sports"],
+      name:"itemCategory",
+    },
+    {
+      type:"input",
+      message:"What is the cost of the item?",
+      name:"itemCost",
+      validate: function(cost){
+        if(!isNaN(cost)){
+          return true;
+        } else {
+          return "this is not a valid cost"
+        }
+      }
+    },
+    {
+      type:"input",
+      message:"How many units are there?",
+      name:"itemQuantity",
+      validate: function(quan){
+        if(!isNaN(quan)){
+          return true;
+        }else{
+          return "this is not a valid Quantity";
+        }
+      }
+    }
+  ]).then(function(inquirerResponse){
+    var inventoryItemName = inquirerResponse.inventoryItemName;
+    var itemCategory = inquirerResponse.itemCategory;
+    var itemCost = inquirerResponse.itemCost;
+    var itemQuantity = inquirerResponse.itemQuantity;
+
+    return insertItems(inventoryItemName, itemCategory, itemCost, itemQuantity);
+  })
+}
+
+function insertItems(inventoryItemName, itemCategory, itemCost, itemQuantity){
+  connection.query("INSERT INTO products SET ?",
+  [{
+    item_name: inventoryItemName,
+    department_name:itemCategory,
+    price:itemCost,
+    stock_quantity:itemQuantity,
+  }], function(err, res){
+    console.log(res);
+    return start();
+
+  })
+}
 
 function inquirerAddInv(){
   inquirer.prompt([
